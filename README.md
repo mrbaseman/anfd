@@ -1,8 +1,5 @@
 # anfd
 
-anfd
-====
-
 anfd (Application Networking Firewall Daemon) is a building block for an application firewall for linux. On linux three main components help protecting against attacks of viruses, malware and alike: 
  * A strict separation of privileged users (like root and other system users) and regular user accounts, combined with appropriate restrictions of access rights. Thereby malicious code should be unable to escalate privileges out of any account and infect the system as a whole. 
  * A properly configured iptables firewall allows access from the system to the outside, and, if needed, access from outside to selected services.
