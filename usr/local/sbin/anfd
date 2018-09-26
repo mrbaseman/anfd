@@ -8,6 +8,9 @@
 # License: Gnu GPL Version 2 or higher
 #
 # Changelog:
+#    26.9.2018: v2.1
+#               allow "dummy" to be empty (for newer kernels
+#               e.g. shipped with ubuntu 18.04)
 #    1.9.2014:  v2.0
 #		converted to nfqueue support for Kernels >= 3.5
 #    26.2.2012:  v1.0
@@ -124,6 +127,7 @@ sub cb()
 	my ($dummy,$payload) = @_;
 	#drop_privileges('nobody');
 	info("Packet arrived",1);
+        if(!$payload){$payload=$dummy;$dummy=0;}
 	info("dummy is $dummy",1) if $dummy;
 	info("parse",1);
 	($ipversion, $proto, $src_ip, $dest_ip, $src_port, $dest_port)=ripPayload($payload->get_data()) if $payload->get_length();
