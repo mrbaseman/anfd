@@ -1,0 +1,67 @@
+#!/usr/bin/perl
+
+use strict;
+use Logwatch ':all';
+
+my $Debug = $ENV{'LOGWATCH_DEBUG'} || 0;
+my $Detail = $ENV{'LOGWATCH_DETAIL_LEVEL'} || 0;
+my $DebugCounter = 0;
+
+
+my %entries = ();
+my %OtherList = ();
+
+
+if ( $Debug >= 5 ) {
+   print STDERR "\n\nDEBUG: Inside anfd Filter \n\n";
+   $DebugCounter = 1;
+}
+
+while (defined(my $ThisLine = <STDIN>)) {
+   if ( $Debug >= 5 ) {
+      print STDERR "DEBUG($DebugCounter): $ThisLine";
+      $DebugCounter++;
+   }
+   chomp($ThisLine);
+
+   if ( my ($command,$destination)
+   = ($ThisLine =~ /anfd: deny for (.*?) connect to (.*)/) ) {
+      if ($Debug >= 5) {
+         print STDERR "DEBUG: Found - $command $destination\n";
+      }
+      $entries{"deny for ".$command." connect to ".$destination} ++;
+   } elsif ( my ($repetition,$command,$destination)
+   = ($ThisLine =~ /anfd: message repeated ([0-9]+) times: \[ deny for (.*?) connect to (.*)\]/) ) {
+      if ($Debug >= 5) {
+         print STDERR "DEBUG: Found - $command $destination $repetition times\n";
+      }
+      $entries{"deny for ".$command." connect to ".$destination} += $repetition;
+   } elsif ($ThisLine =~ /Starte anfd v2.0/) {
+      $entries{"Daemon started"} ++;
+   } elsif ($ThisLine =~ /anfd/) {
+      # Report any unmatched entries...
+      $OtherList{$ThisLine} += 1;
+   }
+}
+
+
+###########################################################
+
+if (keys %entries) {
+   print "$_ : $entries{$_} time(s)\n" foreach keys %entries;
+}
+
+
+if (keys %OtherList) {
+   print "\n**Unmatched Entries**\n";
+   print "$_ : $OtherList{$_} time(s)\n" foreach keys %OtherList;
+}
+
+exit(0);
+
+# vi: shiftwidth=3 tabstop=3 syntax=perl et
+# Local Variables:
+# mode: perl
+# perl-indent-level: 3
+# indent-tabs-mode: nil
+# End:
